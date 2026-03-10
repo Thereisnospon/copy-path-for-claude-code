@@ -6,7 +6,10 @@ A JetBrains plugin that copies file and folder path references in the [Claude Co
 
 - Copy file or folder references in `@path/to/file#Lx-y` format
 - Smart line detection based on editor text selection
+- Multi-cursor support — each caret generates a separate reference with line numbers
 - Multi-file selection support — select multiple files/folders and copy all paths at once
+- Optional trailing space after copied references for easy pasting
+- Configurable separator for multiple references (space or newline)
 - Works from editor context menu, project tree context menu, and keyboard shortcut
 - Configurable balloon notification with adjustable duration
 - Compatible with all JetBrains IDEs
@@ -19,7 +22,9 @@ A JetBrains plugin that copies file and folder path references in the [Claude Co
 | File (single line selected) | `@src/utils/auth.ts#L42` |
 | File (multiple lines selected) | `@src/utils/auth.ts#L42-68` |
 | Folder | `@src/components` |
-| Multiple files selected | `@src/Button.tsx @src/Input.tsx` (space-separated) |
+| Multi-cursor (with selections) | `@src/utils/auth.ts#L5 @src/utils/auth.ts#L20-25` |
+| Multi-cursor (carets only) | `@src/utils/auth.ts#L5 @src/utils/auth.ts#L42` |
+| Multiple files selected | `@src/Button.tsx @src/Input.tsx` (separator configurable) |
 
 ## Usage
 
@@ -47,7 +52,7 @@ Works in both the editor and project tree — the output adapts automatically ba
 # Select lines 10–25 in src/components/Button.tsx, then press ⌥C
 @src/components/Button.tsx#L10-25
 
-# Place caret on line 42 without selecting text, press ⌥C
+# Place caret without selecting text, press ⌥C
 @src/utils/auth.ts
 
 # Right-click a file in the project tree
@@ -55,6 +60,12 @@ Works in both the editor and project tree — the output adapts automatically ba
 
 # Right-click a folder in the project tree
 @src/components
+
+# Place multiple cursors (Alt+Click) on lines 5, 20, 42, press ⌥C
+@src/utils/auth.ts#L5 @src/utils/auth.ts#L20 @src/utils/auth.ts#L42
+
+# Select text at multiple cursors (e.g. lines 5–10 and 30–35), press ⌥C
+@src/utils/auth.ts#L5-10 @src/utils/auth.ts#L30-35
 
 # Select multiple files in the project tree, then press ⌥C
 @src/components/Button.tsx @src/components/Input.tsx @src/utils/auth.ts
@@ -66,6 +77,8 @@ Works in both the editor and project tree — the output adapts automatically ba
 
 | Setting | Description | Default |
 |---|---|---|
+| Append trailing space | Add a space after the copied reference for easy pasting | Enabled |
+| Multiple references separator | Separator between references when copying multiple files or multi-cursor selections: Space or Newline | Space |
 | Show notification after copy | Toggle balloon notification on/off | Enabled |
 | Notification duration (seconds) | How long the notification stays visible (1–30s) | 3 seconds |
 

@@ -1,6 +1,7 @@
 package com.github.copyclaudereference.actions
 
 import com.github.copyclaudereference.notification.ClaudeNotifier
+import com.github.copyclaudereference.settings.ClaudeSettings
 import com.github.copyclaudereference.util.ClaudeReferenceBuilder
 import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnAction
@@ -12,6 +13,17 @@ import com.intellij.openapi.vfs.VfsUtilCore
 import java.awt.datatransfer.StringSelection
 
 class CopyClaudeReferenceAction : AnAction() {
+
+    private fun appendTrailingSpace(reference: String): String {
+        return if (ClaudeSettings.getInstance().appendTrailingSpace) "$reference " else reference
+    }
+
+    private fun getMultiFileSeparator(): String {
+        return when (ClaudeSettings.getInstance().multiFileSeparator) {
+            ClaudeSettings.MultiFileSeparator.SPACE -> " "
+            ClaudeSettings.MultiFileSeparator.NEWLINE -> "\n"
+        }
+    }
 
     override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.BGT
 
@@ -27,25 +39,47 @@ class CopyClaudeReferenceAction : AnAction() {
         val projectDir = project.guessProjectDir() ?: return
         val editor = e.getData(CommonDataKeys.EDITOR)
 
-        // Editor with selection → single file with line numbers
-        if (editor != null && editor.selectionModel.hasSelection()) {
-            val virtualFile = e.getData(CommonDataKeys.VIRTUAL_FILE) ?: return
-            val relativePath = VfsUtilCore.getRelativePath(virtualFile, projectDir) ?: virtualFile.name
-            val document = editor.document
-            val selectionModel = editor.selectionModel
+        // Editor with selection or multi-caret → file with line numbers
+        if (editor != null) {
+            val carets = editor.caretModel.allCarets
+            val hasAnySelection = carets.any { it.hasSelection() }
+            val isMultiCaret = carets.size > 1
 
-            val startLine = document.getLineNumber(selectionModel.selectionStart) + 1
-            var endLine = document.getLineNumber(selectionModel.selectionEnd) + 1
+            if (hasAnySelection || isMultiCaret) {
+                val virtualFile = e.getData(CommonDataKeys.VIRTUAL_FILE) ?: return
+                val relativePath = VfsUtilCore.getRelativePath(virtualFile, projectDir) ?: virtualFile.name
+                val document = editor.document
 
-            // Edge case: selection ends at the very beginning of the next line
-            if (selectionModel.selectionEnd == document.getLineStartOffset(endLine - 1) && endLine > startLine) {
-                endLine--
+                val sortedCarets = carets.sortedBy { it.offset }
+
+                val references = sortedCarets.map { caret ->
+                    if (caret.hasSelection()) {
+                        val startLine = document.getLineNumber(caret.selectionStart) + 1
+                        var endLine = document.getLineNumber(caret.selectionEnd) + 1
+
+                        // Edge case: selection ends at the very beginning of the next line
+                        if (caret.selectionEnd == document.getLineStartOffset(endLine - 1) && endLine > startLine) {
+                            endLine--
+                        }
+                        ClaudeReferenceBuilder.build(relativePath, startLine, endLine)
+                    } else {
+                        // Caret without selection: use cursor's line number
+                        val line = document.getLineNumber(caret.offset) + 1
+                        ClaudeReferenceBuilder.build(relativePath, line, line)
+                    }
+                }
+
+                val combined = references.joinToString(getMultiFileSeparator())
+                val output = appendTrailingSpace(combined)
+                CopyPasteManager.getInstance().setContents(StringSelection(output))
+
+                if (references.size > 1) {
+                    ClaudeNotifier.notify(project, "${references.size} references copied")
+                } else {
+                    ClaudeNotifier.notify(project, references.first())
+                }
+                return
             }
-
-            val reference = ClaudeReferenceBuilder.build(relativePath, startLine, endLine)
-            CopyPasteManager.getInstance().setContents(StringSelection(reference))
-            ClaudeNotifier.notify(project, reference)
-            return
         }
 
         // Multi-file/folder selection from project tree or single file without selection
@@ -57,14 +91,16 @@ class CopyClaudeReferenceAction : AnAction() {
                 val path = VfsUtilCore.getRelativePath(file, projectDir) ?: file.name
                 ClaudeReferenceBuilder.build(path)
             }
-            val combined = references.joinToString(" ")
-            CopyPasteManager.getInstance().setContents(StringSelection(combined))
+            val combined = references.joinToString(getMultiFileSeparator())
+            val output = appendTrailingSpace(combined)
+            CopyPasteManager.getInstance().setContents(StringSelection(output))
             ClaudeNotifier.notify(project, "${references.size} paths copied")
         } else {
             val virtualFile = e.getData(CommonDataKeys.VIRTUAL_FILE) ?: return
             val relativePath = VfsUtilCore.getRelativePath(virtualFile, projectDir) ?: virtualFile.name
             val reference = ClaudeReferenceBuilder.build(relativePath)
-            CopyPasteManager.getInstance().setContents(StringSelection(reference))
+            val output = appendTrailingSpace(reference)
+            CopyPasteManager.getInstance().setContents(StringSelection(output))
             ClaudeNotifier.notify(project, reference)
         }
     }

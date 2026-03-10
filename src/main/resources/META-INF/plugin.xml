@@ -15,7 +15,10 @@
 <ul>
     <li>Copy file or folder references in <code>@path/to/file#Lx-y</code> format</li>
     <li>Smart line detection based on editor text selection</li>
+    <li>Multi-cursor support — each caret generates a separate reference with line numbers</li>
     <li>Multi-file selection support — select multiple files/folders and copy all paths at once</li>
+    <li>Optional trailing space after copied references for easy pasting</li>
+    <li>Configurable separator for multiple references (space or newline)</li>
     <li>Works from editor context menu, project tree context menu, and keyboard shortcut</li>
     <li>Configurable balloon notification with adjustable duration</li>
     <li>Compatible with all JetBrains IDEs</li>
@@ -28,6 +31,8 @@
     <tr><td>File (single line selected)</td><td><code>@src/utils/auth.ts#L42</code></td></tr>
     <tr><td>File (multiple lines selected)</td><td><code>@src/utils/auth.ts#L42-68</code></td></tr>
     <tr><td>Folder</td><td><code>@src/components</code></td></tr>
+    <tr><td>Multi-cursor (with selections)</td><td><code>@src/utils/auth.ts#L5 @src/utils/auth.ts#L20-25</code></td></tr>
+    <tr><td>Multi-cursor (carets only)</td><td><code>@src/utils/auth.ts#L5 @src/utils/auth.ts#L42</code></td></tr>
     <tr><td>Multiple files selected</td><td><code>@src/Button.tsx @src/Input.tsx</code></td></tr>
 </table>
 
@@ -44,6 +49,8 @@
     <li>Right-click <code>package.json</code> in the project tree → <code>@package.json</code></li>
     <li>Right-click <code>src/components</code> folder → <code>@src/components</code></li>
     <li>Place caret without selecting text, press <kbd>⌥C</kbd> → <code>@src/index.ts</code> (path only)</li>
+    <li>Place multiple cursors (<kbd>Alt+Click</kbd>) on lines 5, 20, 42, press <kbd>⌥C</kbd> → <code>@src/utils/auth.ts#L5 @src/utils/auth.ts#L20 @src/utils/auth.ts#L42</code></li>
+    <li>Select text at multiple cursors (e.g. lines 5–10 and 30–35), press <kbd>⌥C</kbd> → <code>@src/utils/auth.ts#L5-10 @src/utils/auth.ts#L30-35</code></li>
 </ol>
 
 <h3>Settings</h3>
@@ -51,6 +58,8 @@
     <b>Settings → Tools → Copy Path for Claude Code</b>
 </p>
 <ul>
+    <li><b>Append trailing space</b> — Add a space after the copied reference for easy pasting (default: on)</li>
+    <li><b>Multiple references separator</b> — Separator between references when copying multiple files or multi-cursor selections: Space or Newline (default: Space)</li>
     <li><b>Show notification after copy</b> — Toggle balloon notification on/off (default: enabled)</li>
     <li><b>Notification duration</b> — How long the notification stays visible, 1–30 seconds (default: 3s)</li>
 </ul>
@@ -62,6 +71,13 @@
     ]]></description>
 
     <change-notes><![CDATA[
+<h3>1.1.0</h3>
+<ul>
+    <li>New: Multi-cursor support — each caret generates a separate reference with line numbers</li>
+    <li>New: Optional trailing space after copied references for easy pasting</li>
+    <li>New: Configurable separator for multiple references — choose between Space or Newline when copying multiple files or multi-cursor selections</li>
+    <li>Reorganized settings panel with "Copy Format" and "Notification" sections</li>
+</ul>
 <h3>1.0.0</h3>
 <ul>
     <li>Initial release</li>

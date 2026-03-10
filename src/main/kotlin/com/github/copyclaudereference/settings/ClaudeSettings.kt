@@ -11,9 +11,13 @@ import com.intellij.openapi.components.Storage
 )
 class ClaudeSettings : PersistentStateComponent<ClaudeSettings.State> {
 
+    enum class MultiFileSeparator { SPACE, NEWLINE }
+
     data class State(
         var showNotification: Boolean = true,
-        var notificationDurationSeconds: Int = 3
+        var notificationDurationSeconds: Int = 3,
+        var appendTrailingSpace: Boolean = true,
+        var multiFileSeparator: MultiFileSeparator = MultiFileSeparator.SPACE
     )
 
     private var state = State()
@@ -26,6 +30,8 @@ class ClaudeSettings : PersistentStateComponent<ClaudeSettings.State> {
 
     val showNotification: Boolean get() = state.showNotification
     val notificationDurationMs: Int get() = state.notificationDurationSeconds.coerceIn(1, 30) * 1000
+    val appendTrailingSpace: Boolean get() = state.appendTrailingSpace
+    val multiFileSeparator: MultiFileSeparator get() = state.multiFileSeparator
 
     companion object {
         fun getInstance(): ClaudeSettings =
