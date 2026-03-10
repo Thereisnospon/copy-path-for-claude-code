@@ -1,0 +1,102 @@
+<idea-plugin>
+    <id>com.github.copypathforclaudecode</id>
+    <name>Copy Path for Claude Code</name>
+    <vendor email="teppasit.w@gmail.com" url="https://github.com/inwpasit619/copy-path-for-claude-code">Teppasit</vendor>
+
+    <description><![CDATA[
+<h2>Copy Path for Claude Code</h2>
+<p>
+    Copy file and folder path references in the <b>Claude Code <code>@</code>-mention format</b> directly from your IDE.
+    Paste them into <a href="https://docs.anthropic.com/en/docs/claude-code">Claude Code</a> conversations
+    so Claude can instantly locate the exact file and lines you're referring to.
+</p>
+
+<h3>Features</h3>
+<ul>
+    <li>Copy file or folder references in <code>@path/to/file#Lx-y</code> format</li>
+    <li>Smart line detection based on editor text selection</li>
+    <li>Multi-file selection support — select multiple files/folders and copy all paths at once</li>
+    <li>Works from editor context menu, project tree context menu, and keyboard shortcut</li>
+    <li>Configurable balloon notification with adjustable duration</li>
+    <li>Compatible with all JetBrains IDEs</li>
+</ul>
+
+<h3>Reference Format</h3>
+<table>
+    <tr><th>Context</th><th>Output</th></tr>
+    <tr><td>File (no selection)</td><td><code>@src/utils/auth.ts</code></td></tr>
+    <tr><td>File (single line selected)</td><td><code>@src/utils/auth.ts#L42</code></td></tr>
+    <tr><td>File (multiple lines selected)</td><td><code>@src/utils/auth.ts#L42-68</code></td></tr>
+    <tr><td>Folder</td><td><code>@src/components</code></td></tr>
+    <tr><td>Multiple files selected</td><td><code>@src/Button.tsx @src/Input.tsx</code></td></tr>
+</table>
+
+<h3>How to Use</h3>
+<ul>
+    <li><b>Editor context menu</b> — Right-click in any editor → <i>Copy Path for Claude Code</i>. The reference includes line numbers based on your current text selection.</li>
+    <li><b>Project tree context menu</b> — Right-click any file or folder in the Project tool window → <i>Copy Path for Claude Code</i>. Copies the relative path without line numbers.</li>
+    <li><b>Keyboard shortcut</b> — Press <kbd>Alt+C</kbd> (<kbd>⌥C</kbd> on macOS). Works in both the editor and project tree; the output adapts automatically based on focus and selection.</li>
+</ul>
+
+<h3>Examples</h3>
+<ol>
+    <li>Select lines 10–25 in <code>src/components/Button.tsx</code>, press <kbd>⌥C</kbd> → <code>@src/components/Button.tsx#L10-25</code></li>
+    <li>Right-click <code>package.json</code> in the project tree → <code>@package.json</code></li>
+    <li>Right-click <code>src/components</code> folder → <code>@src/components</code></li>
+    <li>Place caret without selecting text, press <kbd>⌥C</kbd> → <code>@src/index.ts</code> (path only)</li>
+</ol>
+
+<h3>Settings</h3>
+<p>
+    <b>Settings → Tools → Copy Path for Claude Code</b>
+</p>
+<ul>
+    <li><b>Show notification after copy</b> — Toggle balloon notification on/off (default: enabled)</li>
+    <li><b>Notification duration</b> — How long the notification stays visible, 1–30 seconds (default: 3s)</li>
+</ul>
+
+<h3>Compatibility</h3>
+<p>
+    Works with <b>all JetBrains IDEs</b> (2024.1+): IntelliJ IDEA, WebStorm, PyCharm, GoLand, PhpStorm, Rider, CLion, RustRover, DataGrip, Android Studio, and more.
+</p>
+    ]]></description>
+
+    <change-notes><![CDATA[
+<h3>1.0.0</h3>
+<ul>
+    <li>Initial release</li>
+    <li>Copy file and folder path in <code>@path#Lstart-end</code> format for Claude Code</li>
+    <li>Editor context menu, project tree context menu, and <kbd>Alt+C</kbd> keyboard shortcut</li>
+    <li>Configurable balloon notification with adjustable duration</li>
+    <li>Settings page under <b>Tools → Copy Path for Claude Code</b></li>
+    <li>Compatible with all JetBrains IDEs (2024.1+)</li>
+</ul>
+    ]]></change-notes>
+
+    <depends>com.intellij.modules.platform</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <notificationGroup id="Copy Path for Claude Code"
+                           displayType="BALLOON"
+                           isLogByDefault="false"/>
+        <applicationService
+                serviceImplementation="com.github.copyclaudereference.settings.ClaudeSettings"/>
+        <applicationConfigurable
+                parentId="tools"
+                instance="com.github.copyclaudereference.settings.ClaudeSettingsConfigurable"
+                id="com.github.copyclaudereference.settings"
+                displayName="Copy Path for Claude Code"/>
+    </extensions>
+
+    <actions>
+        <action id="CopyPathForClaudeCode"
+                class="com.github.copyclaudereference.actions.CopyClaudeReferenceAction"
+                text="Copy Path for Claude Code"
+                description="Copy file path in @path#Lx-y format for Claude Code"
+                icon="/icons/claude.svg">
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="alt C"/>
+        </action>
+    </actions>
+</idea-plugin>
