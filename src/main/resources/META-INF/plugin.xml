@@ -105,14 +105,32 @@
     </extensions>
 
     <actions>
-        <action id="CopyPathForClaudeCode"
-                class="com.github.copyclaudereference.actions.CopyClaudeReferenceAction"
-                text="Copy Path for Claude Code"
-                description="Copy file path in @path#Lx-y format for Claude Code"
-                icon="/icons/claude.svg">
-            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
-            <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
-            <keyboard-shortcut keymap="$default" first-keystroke="alt C"/>
-        </action>
+        <group id="CopyPathGroupForClaudeCode"
+               text="Copy Path"
+               description="Copy path options"
+               popup="true"
+               icon="/icons/claude.svg">
+            <add-to-group group-id="EditorPopupMenu" anchor="first"/>
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="first"/>
+            
+            <action id="CopyPathForClaudeCode"
+                    class="com.github.copyclaudereference.actions.CopyClaudeReferenceAction"
+                    text="Copy Path for Claude Code"
+                    description="Copy file path in @path#Lx-y format for Claude Code">
+
+            </action>
+            
+            <separator/>
+            
+            <action id="CopyFileNameForClaudeCode"
+                    class="com.github.copyclaudereference.actions.CopyFileNameAction"
+                    text="Copy File Name"
+                    description="Copy file name only"/>
+            
+            <action id="CopyAbsolutePathForClaudeCode"
+                    class="com.github.copyclaudereference.actions.CopyAbsolutePathAction"
+                    text="Copy Absolute Path"
+                    description="Copy absolute file path"/>
+        </group>
     </actions>
 </idea-plugin>
